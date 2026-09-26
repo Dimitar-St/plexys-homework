@@ -5,8 +5,7 @@ services:
     image: cortezaproject/corteza:${VERSION:-2024.9.10}
     restart: unless-stopped
     depends_on:
-      db:
-        condition: service_healthy
+    - db
     ports:
       - "127.0.0.1:18080:80"
     environment:
