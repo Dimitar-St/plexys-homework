@@ -25,15 +25,6 @@ services:
       POSTGRES_DB: corteza
       POSTGRES_USER: "${POSTGRES_USER}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
-    healthcheck:
-      # Use the container network: localhost uses trust and cannot detect a stale password.
-      test:
-        - CMD-SHELL
-        - 'PGPASSWORD="$${POSTGRES_PASSWORD}" psql -w -h db -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}" -v ON_ERROR_STOP=1 -tAc "SELECT 1" >/dev/null'
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
     volumes:
       - db-data:/var/lib/postgresql/data
 
