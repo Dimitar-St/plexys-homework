@@ -11,9 +11,9 @@ services:
       - "127.0.0.1:18080:80"
     environment:
       DOMAIN: "${DOMAIN:-localhost:18080}"
-      DB_DSN: "postgres://corteza:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/corteza?sslmode=disable"
+      DB_DSN: "postgres://corteza:${POSTGRES_PASSWORD}@db:5432/corteza?sslmode=disable"
       HTTP_WEBAPP_ENABLED: "true"
-      AUTH_JWT_SECRET: "${AUTH_JWT_SECRET:?Set AUTH_JWT_SECRET in .env}"
+      AUTH_JWT_SECRET: "${AUTH_JWT_SECRET}"
       CORREDOR_ENABLED: "false"
     volumes:
       - server-data:/data
@@ -24,7 +24,7 @@ services:
     environment:
       POSTGRES_DB: corteza
       POSTGRES_USER: corteza
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     healthcheck:
       # Use the container network: localhost uses trust and cannot detect a stale password.
       test:
