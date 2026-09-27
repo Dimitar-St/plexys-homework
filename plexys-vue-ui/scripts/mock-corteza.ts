@@ -35,7 +35,7 @@ export function createMockCorteza(options: MockOptions = {}) {
     records.set(id, {
       recordID: id, createdAt: date(-7 + index), updatedAt: index ? date(-1) : null,
       ownedBy: '900000000000000001', createdBy: '900000000000000001', canUpdateRecord: true,
-      values: values({ subject, status, priority, customer, description, dueDate: due === null ? '' : date(due) }),
+      values: values({ Subject: subject, Status: status, Priority: priority, Customer: customer, Description: description, DueDate: due === null ? '' : date(due) }),
     })
   })
   const customers = [
@@ -92,8 +92,8 @@ export function createMockCorteza(options: MockOptions = {}) {
       if (req.method === 'POST' && moduleID === '200') {
         const body = JSON.parse(raw) as { values: RecordValue[]; updatedAt?: string }
         const get = (name: string): string => body.values.find(value => value.name === name)?.value || ''
-        if (!get('subject').trim() || !['New', 'In Progress', 'Resolved', 'Closed'].includes(get('status'))
-          || !['Low', 'Medium', 'High', 'Urgent'].includes(get('priority'))) {
+        if (!get('Subject').trim() || !['New', 'In Progress', 'Resolved', 'Closed'].includes(get('Status'))
+          || !['Low', 'Medium', 'High', 'Urgent'].includes(get('Priority'))) {
           return reply(res, 200, { error: { message: 'Subject, status, and priority are required.' } })
         }
         const previous = id ? records.get(id) : undefined

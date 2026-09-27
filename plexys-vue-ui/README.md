@@ -4,7 +4,52 @@ A Vue 3 + TypeScript support-ticket application with real Corteza API integratio
 
 The interface includes a searchable ticket list, status and priority filters, summary counts, a create/edit dialog, optional customer references, and system record information. It handles loading, empty, validation, permission, expired-session, and API-error states.
 
-**Verification:** the production build and nine automated checks passed. The checks use a local mock of the Corteza API; live Corteza authentication and persistence have not been verified because no running instance was available. The cloud browser blocked the local preview, so visual browser verification remains pending.
+The local Node server and Cloudflare Worker share the OAuth and API request handler. Automated checks use a mock Corteza server; a live production login still needs your deployed Corteza configuration.
+
+## Deploy to Cloudflare Workers
+
+This project deploys both the Vue frontend and the OAuth/API Worker. Use the **Workers** deployment, with `plexys-vue-ui` as the root directory and `npm run deploy` as the deployment command. Uploading only `dist/client` to Pages will omit the authentication server.
+
+The Wrangler configuration provisions a SQLite-backed `SESSIONS` Durable Object namespace on deployment. No manual database ID is required. Each browser session has a separate object; access and refresh tokens remain server-side, expire after eight hours, and survive Worker restarts. Corteza and PostgreSQL remain on your existing backend host.
+
+### Production settings
+
+In your Worker's **Settings → Variables and Secrets**, configure:
+
+| Setting | Value |
+| --- | --- |
+| `APP_ORIGIN` | Your exact UI origin, such as `https://plexys-vue-corteza-ui.your-account.workers.dev` |
+| `CORTEZA_URL` | Your publicly reachable HTTPS Corteza origin |
+| `CORTEZA_CLIENT_ID` | Corteza Authorization Code client ID |
+| `CORTEZA_CLIENT_SECRET` | Client secret — add this as an encrypted **Secret** |
+| `CORTEZA_NAMESPACE_ID` | Numeric namespace ID |
+| `CORTEZA_TICKET_MODULE_ID` | Numeric Support Ticket module ID |
+| `CORTEZA_CUSTOMER_MODULE_ID` | Numeric Customer module ID, or omit if unused |
+
+These are runtime settings. Local `.env`/`.dev.vars` values are not uploaded as production secrets. Do not use `VITE_` prefixes. `PORT` and `HOST` are only for the local Node server and are not needed on Cloudflare. Wrangler is configured with `keep_vars: true` to retain dashboard variables on redeployment. Keep production settings in the dashboard; this repository deliberately contains no production URLs, IDs, or credentials.
+
+In Corteza Admin, register **`<APP_ORIGIN>/auth/callback`** as the client's redirect URI and allow the `profile api` scopes. The signed-in user needs permission to read/create/update ticket records and read customers. `CORTEZA_URL` cannot point to your laptop's localhost in production.
+
+From this folder, deploy with:
+
+```bash
+npm ci
+npm run deploy
+```
+
+If using Cloudflare's Git integration, configure it to run `npm run deploy`; the command builds both bundles before invoking Wrangler. The generated deployment configuration points to `dist/plexys_vue_corteza_ui`, with frontend assets in `dist/client`. Do not upload the entire `dist` directory as public assets: Worker development output may contain a local `.dev.vars` file.
+
+After deployment, open `/app/session` on the UI domain. It should return JSON with `authenticated: false` and `config.ready: true`. Sign in, create a ticket, reload, and verify the same ticket in Corteza. Secrets are never included in this session response.
+
+### Local Worker preview and tests
+
+Copy `.dev.vars.example` to `.dev.vars`, fill in your local settings, and register `http://localhost:8787/auth/callback` in your test Corteza client. Then run `npm run preview -- --port 8787`. The Node development workflow below still uses `.env` and port 5173.
+
+```bash
+npm test               # Shared auth/API and ticket tests
+npm run test:worker    # Build plus Cloudflare runtime/persistent-session integration test
+npm run cf:types       # Regenerate types after changing Wrangler bindings
+```
 
 ## Run the demo
 
@@ -122,9 +167,9 @@ For a local production-build check, set `APP_ORIGIN=http://localhost:3001`, regi
 npm start
 ```
 
-The Node server serves `dist/` and the API/auth routes on port 3001. For a public deployment, use HTTPS, set `APP_ORIGIN` to the public frontend origin and `CORTEZA_URL` to the reachable HTTPS Corteza URL, and register the matching callback. If using a reverse proxy, route `/auth`, `/app`, and `/api` to this Node server on the same public origin as the Vue assets. Set `NODE_ENV=production`.
+The Node server serves `dist/client/` and the API/auth routes on port 3001. For a public deployment, use HTTPS, set `APP_ORIGIN` to the public frontend origin and `CORTEZA_URL` to the reachable HTTPS Corteza URL, and register the matching callback. If using a reverse proxy, route `/auth`, `/app`, and `/api` to this Node server on the same public origin as the Vue assets. Set `NODE_ENV=production`.
 
-This is not a static-only deployment: the authentication proxy must also run. The included session store is in memory, intended for a single-process homework/demo deployment. Restarting it logs users out. Replace it with a shared persistent session store before running multiple replicas. The proxy has an eight-hour session lifetime and a 1,000-session bound.
+The local Node server uses an in-memory session store and restarting it logs users out. The Cloudflare deployment uses persistent Durable Objects instead. Both use an eight-hour session lifetime.
 
 ## Scope and limits
 
@@ -144,7 +189,7 @@ npm run build
 
 Verified here with Node 24.19.0, Vue 3.5.43, Vite 7.3.6, TypeScript 5.9.3, and vue-tsc 3.3.11. `package-lock.json` pins the resolved dependencies.
 
-Nine automated checks cover invalid OAuth state, session/token isolation, bearer forwarding, cursor parameters, CSRF and route restrictions, create/update payloads, token refresh, logout, 64-bit IDs, optional-field clearing, additional-field preservation, validation, and date conversion. These checks use the fixture; they are not evidence of a running Corteza backend.
+The shared-handler automated checks cover invalid OAuth state, session/token isolation, bearer forwarding, cursor parameters, CSRF and route restrictions, create/update payloads, token refresh, logout, 64-bit IDs, optional-field clearing, additional-field preservation, validation, and date conversion. These checks use the fixture; they are not evidence of a running Corteza backend.
 
 Live acceptance steps:
 
@@ -164,10 +209,10 @@ Live acceptance steps:
 | `src/components/TicketDialog.vue` | Create/edit form and system metadata |
 | `src/api/corteza.ts` | Typed requests and cursor pagination |
 | `src/domain/tickets.ts` | Record mapping, field validation, dates |
-| `server/app.mjs` | OAuth, sessions, restricted API proxy, static serving |
-| `server/config.mjs` | Server-only environment configuration |
+| `server/app.ts` | OAuth, sessions, restricted API proxy, static serving |
+| `server/config.ts` | Server-only environment configuration |
 | `scripts/dev.mjs` | Local development and explicit demo startup |
-| `scripts/mock-corteza.mjs` | Demo/test fixture only |
+| `scripts/mock-corteza.ts` | Demo/test fixture only |
 | `tests/` | API/auth and data-mapping checks |
 
 ## Primary references

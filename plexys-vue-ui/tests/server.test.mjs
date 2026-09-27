@@ -1,8 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createApp } from '../server/app.mjs'
-import { readConfig } from '../server/config.mjs'
-import { createMockCorteza } from '../scripts/mock-corteza.mjs'
+import { createApp } from '../server/app.ts'
+import { readConfig } from '../server/config.ts'
+import { createMockCorteza } from '../scripts/mock-corteza.ts'
 
 async function listen(server) {
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve) })

@@ -12,7 +12,7 @@ export interface AppConfig {
   demo: boolean
 }
 
-export function readConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
+export function readConfig(env: Record<string, string | undefined> = process.env): AppConfig {
   const app = new URL(env.APP_ORIGIN || 'http://localhost:5173')
   const corteza = new URL(env.CORTEZA_URL || 'http://localhost:18080')
   for (const url of [app, corteza]) {

@@ -42,6 +42,7 @@ try {
   if (demo) { mock = createMockCorteza(); await listen(mock.server, 18081) }
   api = createApp(config)
   await listen(api, 3001)
+  process.env.LOCAL_NODE_SERVER = 'true'
   vite = await createViteServer()
   await vite.listen()
   console.log(demo ? '\nDEMO MODE: local fixture data only; no live Corteza requests.\n' : '\nUsing the configured Corteza instance.\n')

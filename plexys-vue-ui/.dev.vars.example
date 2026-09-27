@@ -1,0 +1,8 @@
+# Copy to .dev.vars for `npm run preview`; this file is never deployed.
+APP_ORIGIN=http://localhost:8787
+CORTEZA_URL=http://localhost:18080
+CORTEZA_CLIENT_ID=
+CORTEZA_CLIENT_SECRET=
+CORTEZA_NAMESPACE_ID=
+CORTEZA_TICKET_MODULE_ID=
+CORTEZA_CUSTOMER_MODULE_ID=
