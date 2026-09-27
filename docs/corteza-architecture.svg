@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="430" viewBox="0 0 1120 430" role="img" aria-labelledby="title desc">
+  <title id="title">Corteza deployment architecture</title>
+  <desc id="desc">The user's browser connects to Cloudflare, which hosts Vue static assets and an authentication/API Worker in one deployment. The Worker connects to Traefik, managed by Coolify on a Hetzner Cloud virtual machine. Traefik forwards requests to Corteza, which uses PostgreSQL. The proxy and backend services run in Docker.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8Z" fill="#475569"/></marker>
+    <style>
+      text { font-family: Arial, sans-serif; fill: #0f172a; font-size: 16px; text-anchor: middle; }
+      .heading { font-size: 20px; font-weight: bold; }
+      .small { font-size: 13px; fill: #475569; }
+      .node { fill: #fff; stroke: #64748b; stroke-width: 1.5; }
+      .edge { fill: none; stroke: #475569; stroke-width: 2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="1120" height="430" rx="12" fill="#fff"/>
+  <rect x="190" y="35" width="330" height="345" rx="12" fill="#fff7ed" stroke="#ea580c"/>
+  <text x="355" y="72" class="heading">Cloudflare</text>
+  <text x="355" y="96" class="small">One Worker deployment with static assets</text>
+  <rect x="605" y="35" width="485" height="345" rx="12" fill="#eff6ff" stroke="#2563eb"/>
+  <text x="847" y="72" class="heading">Hetzner Cloud VM</text>
+  <rect x="625" y="105" width="445" height="250" rx="10" fill="#f8fafc" stroke="#94a3b8" stroke-dasharray="6 4"/>
+  <text x="847" y="131" class="small">Docker · managed by Coolify</text>
+  <rect x="20" y="200" width="130" height="70" rx="8" class="node"/>
+  <text x="85" y="229">User / browser</text>
+  <text x="85" y="251" class="small">Runs Vue</text>
+  <rect x="230" y="125" width="250" height="65" rx="8" class="node"/>
+  <text x="355" y="163">Vue static assets</text>
+  <rect x="230" y="220" width="250" height="70" rx="8" class="node"/>
+  <text x="355" y="261">Worker — Auth/API</text>
+  <path d="M150 220 H175 V157 H230" class="edge"/>
+  <path d="M150 250 H230" class="edge"/>
+  <rect x="645" y="220" width="150" height="70" rx="8" class="node"/>
+  <text x="720" y="250">Traefik</text>
+  <text x="720" y="272" class="small">Managed by Coolify</text>
+  <path d="M480 255 H645" class="edge"/>
+  <text x="562" y="243" class="small">HTTPS</text>
+  <rect x="860" y="175" width="180" height="65" rx="8" class="node"/>
+  <text x="950" y="213">Corteza server</text>
+  <path d="M795 255 H825 V207 H860" class="edge"/>
+  <rect x="860" y="275" width="180" height="60" rx="8" class="node"/>
+  <text x="950" y="311">PostgreSQL</text>
+  <path d="M950 240 V275" class="edge"/>
+  <text x="560" y="412" class="small">Deployment overview · session storage, volumes, and login redirects omitted for clarity</text>
+</svg>

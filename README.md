@@ -2,6 +2,14 @@
 
 Vue 3 with the Composition API, Corteza, and PostgreSQL. The Vue app uses an authentication/API server to sign users in with Corteza and save tickets under their permissions.
 
+## Architecture
+
+![Corteza deployment overview: browser, Cloudflare Vue assets and Auth/API Worker, then Traefik, Corteza, and PostgreSQL on Hetzner Cloud](docs/corteza-architecture.svg)
+
+Cloudflare hosts the Vue static assets and the authentication/API Worker in one deployment. The Worker connects to Corteza through Traefik, managed by Coolify on a Hetzner Cloud VM. Corteza and PostgreSQL run using the backend Compose configuration.
+
+[Original Draw.io diagram](docs/corteza-architecture.drawio)
+
 ## Prerequisites
 
 - Node.js 22.18 or newer and npm.
